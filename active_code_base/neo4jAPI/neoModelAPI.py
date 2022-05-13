@@ -18,6 +18,9 @@ class neoAPI():
         results, meta = db.cypher_query(query, params)
         people = [Person.inflate(row[0]) for row in results]
 
+    def create_case_node(case_data):
+        return Case()
+
     def create_city_node(name):
         return City(name = name)
         
@@ -56,6 +59,13 @@ class neoAPI():
     def update(obj):
         with db.transaction:
             return obj.save()
+
+
+
+class Case(StructuredNode):
+    uid = UniqueIdProperty()
+    
+
 
 
 class Processed(StructuredNode):

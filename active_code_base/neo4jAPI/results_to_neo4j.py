@@ -263,7 +263,6 @@ def filter_json_data(json_data, filter):
     res = dict((k, json_data[k]) for k in filter if k in json_data)
     pprint(res)
 
-def 
 
 
 if __name__ == "__main__":
