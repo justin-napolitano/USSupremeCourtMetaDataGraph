@@ -67,6 +67,7 @@ class search_results_page():
         self.graph = self.node_runner(data = self.response_json['results'], graph = self.graph)
         self.dict_of_dicts = nx.to_dict_of_dicts(self.graph) 
         
+        
         #self.edges = nx.bfs_edges(self.graph, 'result',depth_limit=2)
         #for u,v in self.edges:
         #    pprint(v)
@@ -495,19 +496,19 @@ def create_config_object(file_path = 'config.yaml'):
 def search_result_generator(condition = True):
     #column_lookup_table = {}
     #pprint(num_columns)
-    page_num = 17
+    page_num = 2
     column_lookup_table = {}
     while condition ==True:
         #pprint(num_columns)
-        time.sleep(20)
+        time.sleep(30)
         search_results_page_object = create_search_results_page_object(page_num = page_num)
         if search_results_page_object.next_url != None:
             condition = True
             page_num = page_num + 1            
-            yield search_results_page_object
+            yield (search_results_page_object)
         else:
             condition = False
-            yield search_results_page_object     
+            yield (search_results_page_object)
         
 def create_search_results_page_object(base_url = "https://www.loc.gov/collections",collection = "united-states-reports",json_parameter = "fo=json",results_per_page = "c=150",query_param = "?",page_param ="sp=",page_num = 1):
     #search = search_results(base_url,collection,json_parameter,results_per_page,query_param,page_param,page_num)
@@ -531,6 +532,9 @@ def flatten_result(result_json):
     flat_json = flatten(result_json)
     return flat_json
 
+def write_last_page_num(page_num):
+    with open('last_page_num.txt', 'w') as f:
+        f.write(str(page_num))
 
 def main():
     tracemalloc.start()
@@ -538,10 +542,11 @@ def main():
     #result = create_search_results_page_object()
     #with cd("output"):
     #    result.write_to_file(data = result.dict_of_dicts, file_num = 1)
-    for obj in search_result_generator():
+    for obj in search_result_generator():   
         page_num = obj.page_num
         with cd("output"):
             obj.write_to_file(data = obj.dict_of_dicts, file_num = page_num)
+        write_last_page_num(page_num)
         print("one_done")
 
 

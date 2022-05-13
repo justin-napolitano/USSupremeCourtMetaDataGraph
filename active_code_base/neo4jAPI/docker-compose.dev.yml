@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+ web:
+  build:
+   context: .
+  ports:
+  - 5000:5000
+  volumes:
+  - ./:/app
+
+ neo4j:
+  image: neo4j
+  ports:
+  - 7474:7474
+  - 7687:7687
+  environment:
+  - NEO4J_AUTH=neo4j
+  volumes:
+  - neo4j_data:$HOME/neo4j/data:/data
+  - neo4j_logs:$HOME/neo4j/logs:/logs
+  - neo4j_import:$HOME/neo4j/import:/var/lib/neo4j/import
+  - neo4j_plugins:$HOME/neo4j/plugins:/plugins 
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:
