@@ -11,7 +11,7 @@ from platform import node
 from pprint import pprint
 from neomodel import (config, StructuredNode, StringProperty, IntegerProperty,
     UniqueIdProperty, RelationshipTo, BooleanProperty, EmailProperty, Relationship,db)
-#import pandas as pd
+import pandas as pd
 #import NeoNodes as nn
 #import GoogleServices
 import neo4jClasses
@@ -242,9 +242,14 @@ def load_json_data(file):
 def json_pipeline(file_list):
     test = file_list[0]
     data = load_json_data(file=test)
-    pprint(data[0])
-    filter = ['contributor','date', 'dates', 'digitized']
-    filter_json_data(json_data = data[0], filter = filter)
+    #pprint(data[0])
+    
+    #filtered_data = filter_json_data(json_data = data, filter = filter)
+    data = clean_json_data(data)
+    data = stringify_json_values(data)
+    data = pandify_json_data(data)
+    
+
 
     #for each result in the list
         #nodify it 
@@ -256,12 +261,79 @@ def json_pipeline(file_list):
             #nah do it the right way.  
             #FOr each result create a node typed correctly
 
+def pandify_json_data(data):
+    #case_df = pd.concat(data, sort=False)
+    df= pd.DataFrame(data)
+    return df
+        
+def stringify_json_values(data):
+    for dict in data:
+        for key in dict:
+            if type(dict[key]) == list:
+                tmp_list = []
+                for item in (dict[key]):
+                    item = item.replace(" ", "-")
+                    tmp_list.append(item)
+                dict[key] = tmp_list
+
+                dict[key] = ",".join(dict[key])
+                
+    return data
+                
+
+    #pprint(data)
+
+def clean_json_data(filtered_data):
+    # Select the keys that I want from the dictionary
+    # filter appropriatly into a df 
+    # write df to file
+    for data in filtered_data:
+        #creat a dictionary of columns and values for each row.  Combine them all into a df when we are done
+        # each dictionary must be a row.... which makes perfect sense, but they can not be nested... 
+        item = data.pop('item', None)
+        resources = data.pop('resources', None)
+        index = data.pop('index', None)
+        language = data.pop('language', None)
+        online_format= data.pop('online_format', None)
+        original_format = data.pop('original_format', None)
+        type = data.pop('type', None)
+        image_url = data.pop('image_url', None)
+        hassegments = data.pop('hassegments', None)
+        extract_timestamp = data.pop('extract_timestamp', None)
+        timestampe = data.pop('timestamp', None)
+        pdf = resources[0]['pdf']
+        data["pdf"] = pdf
+        data['search_index'] = index
+    
+
+
+    # convert to strings maybe move into another function to be called.  Actually will definitely move to a nother function 
+
+    return filtered_data
+    #uid = UniqueIdProperty()
+    ##date = date
+    #dates = dates
+    #group = group
+    #id = id 
+    #pdf = pdf 
+    #shelf_id = shelf_id
+    #subject = subject
+    #primary_topic = primary_topic
+    #title = title
+    #url = url
+    #description = description
+    #source_collection = source_collection
+
+
+
 
 def filter_json_data(json_data, filter):
     # Using dict()
     # Extracting specific keys from dictionary
+
+    filter = ['contributor','date', 'dates', 'digitized']
     res = dict((k, json_data[k]) for k in filter if k in json_data)
-    pprint(res)
+    return res
 
 
 
