@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from datetime import date
+from shelve import Shelf
 from neomodel import (config, StructuredNode, StringProperty, IntegerProperty,
     UniqueIdProperty, RelationshipTo, BooleanProperty, EmailProperty, Relationship, db)
 from pprint import pprint
@@ -64,9 +67,18 @@ class neoAPI():
 
 class Case(StructuredNode):
     uid = UniqueIdProperty()
-    
-
-
+    date = StringProperty(unique_index=True, required=True)
+    dates = StringProperty(unique_index=True, required=True)
+    group = StringProperty(unique_index=True, required=True)
+    id = StringProperty(unique_index=True, required=True)
+    pdf = StringProperty(unique_index=True, required=True) 
+    shelf_id = StringProperty(unique_index=True, required=True)
+    subject = StringProperty(unique_index=True, required=True)
+    primary_topic = StringProperty(unique_index=True, required=True)
+    title = StringProperty(unique_index=True, required=True)
+    url = StringProperty(unique_index=True, required=True)
+    description = StringProperty(unique_index=True, required=True)
+    source_collection = StringProperty(unique_index=True, required=True)
 
 class Processed(StructuredNode):
     uid = UniqueIdProperty()
