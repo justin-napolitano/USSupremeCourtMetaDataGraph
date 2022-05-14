@@ -498,7 +498,7 @@ def main():
 
     for obj in search_result_generator():   
         page_num = obj.page_num
-        with cd("output"):
+        with cd("output_2"):
             #print('hahaha')
             obj.to_json(file_num = page_num)
             #obj.write_graphml(file_num= page_num)

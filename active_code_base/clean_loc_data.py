@@ -38,9 +38,6 @@ def load_json_data(file):
     data = json.loads(f.read())
     return data
 
-def select_results(json_data):
-    ldajkf;akdjf
-
 
 def dump_json_to_file(json_data = None,file_counter = 0):
     if json_data != None:
