@@ -6,9 +6,16 @@
 #import GoogleServices as google
 #from pyspark.sql import SparkSession
 #from pyspark.sql.functions import struct
+from cgitb import lookup
 import code
+from dbm import dumb
+from doctest import master
+import mimetypes
 from platform import node
 from pprint import pprint
+from re import sub
+from unittest.util import unorderable_list_difference
+from urllib.parse import non_hierarchical
 from neomodel import (config, StructuredNode, StringProperty, IntegerProperty,
     UniqueIdProperty, RelationshipTo, BooleanProperty, EmailProperty, Relationship,db)
 import pandas as pd
@@ -20,6 +27,7 @@ import neoModelAPI as neo
 import glob
 import os
 import json
+import numpy as np
 #from neoModelAPI import NeoNodes as nn
 
 
@@ -193,7 +201,8 @@ def get_files(cwd =os.getcwd(), input_directory = 'input'):
     return file_list
 
 def instantiate_neo_model_api():
-    return neo.neoAPI()
+    uri = "neo4j+s://7a92f171.databases.neo4j.io"
+    return neo.neoAPI(uri)
 
 def prepare_data_pipeline():
     pipeline_functions = DataPipelineFunctions()
@@ -239,16 +248,100 @@ def load_json_data(file):
     return data
 
 
-def json_pipeline(file_list):
+def json_pipeline(file_list, master_subject_table):
     test = file_list[0]
     data = load_json_data(file=test)
     #pprint(data[0])
     
     #filtered_data = filter_json_data(json_data = data, filter = filter)
+
+    # Creating the case nodes transaction nodes and df
     data = clean_json_data(data)
-    data = stringify_json_values(data)
-    data = pandify_json_data(data)
+    case_data = stringify_json_values(data)
+    case_data = pandify_case_data(case_data)
+    case_data = nodify_case_data(case_data = case_data)
     
+    # Creating the subject nodes transaction nodes and df
+    subject_list = slice_subject_data(data)
+    subject_list = identify_unique_subjects(subject_list)
+    subject_lookup_table = create_subject_lookup_table(subject_list)
+    master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
+    master_subject_table = nodify_subjects(master_subject_table)
+
+    relationships = create_relationship_table(case_data, master_subject_table)
+
+
+def create_relationship_table(case_data, master_subject_table):
+    #pprint(case_data[])
+        #test = master_subject_table['subject']
+    for row in range(len(case_data)):
+        unique_dataframe = (master_subject_table[master_subject_table['subject'].isin(case_data['subject_list'][row])])
+    #create relationship between the case and each uid in the unique_data_frame_transaction_list 
+    pprint(unique_dataframe)
+
+
+    ## Creating the realation table
+
+    # Thoughts
+    # pass subject and case table
+    # case_subject list collumn
+    # where that list is in the master table
+        #return  the subjects 
+    # make a connection to between each subject and the case in the returned tableuid in the table
+    # return a transaction list 
+    # with the list commit a transaction for eachn 
+    #
+
+    #case_data= filter_case_data(data)
+def nodify_case_data(case_data):
+    non_submitted_nodes = case_data.notna()
+    case_nodes = non_submitted_nodes.apply(lambda x :neo.neoAPI.create_case_node(date = x['date'], dates= x['dates'],group = x['group'], name=x['id'], pdf= x['pdf'], shelf_id = x['shelf_id'], subject= x['subject'], primary_topic = x['subject_major_case_topic'], title = x['title'], url = x['url'] ), axis=1)
+
+    case_data['transaction'] = case_nodes
+    return case_data
+
+
+
+
+def filter_case_data(data):
+    pprint(data[0])
+
+
+
+def nodify_subjects(master_subject_table):
+    non_submitted_nodes = master_subject_table.notna()
+    #pprint(non_submitted_nodes)
+    subject_nodes = master_subject_table['subject'].apply(lambda x :neo.neoAPI.create_subject_node(name = x))
+    master_subject_table['transaction'] = subject_nodes
+    return master_subject_table
+
+def integrate_to_master_table(subject_lookup_table, master_subject_table):
+    #check_if subject in list is in subject of the table
+    # if so drop it from the temp table
+    # append what is left to the master table 
+    #pprint(subject_lookup_table)
+    test = master_subject_table['subject']
+    unique_dataframe = (subject_lookup_table[~subject_lookup_table['subject'].isin(test)])
+    #duplicate_list = (master_subject_table[~master_subject_table['subject'].isin(subject_lookup_table['subject'])])
+    master_subject_table = pd.concat([master_subject_table,unique_dataframe])
+    return master_subject_table
+
+def create_subject_lookup_table(subject_list):
+    lookup_table = pd.DataFrame(subject_list, columns=['subject'])
+    lookup_table['transaction'] = np.nan
+    return lookup_table
+
+def identify_unique_subjects(subject_list):
+    
+    # insert the list to the set
+    list_set = set(subject_list)
+    # convert the set to the list
+    unique_list = (list(list_set))
+    return unique_list
+#def combine_subjects(subject_lists):
+
+
+
 
 
     #for each result in the list
@@ -260,14 +353,21 @@ def json_pipeline(file_list):
             #yeah there is a query function
             #nah do it the right way.  
             #FOr each result create a node typed correctly
+def slice_subject_data(data):
+    subject_list = []
+    for case in data:
+        subject_list = subject_list + case['subject_list']
+    #pprint(subject_list)
+    return subject_list
 
-def pandify_json_data(data):
+def pandify_case_data(data):
     #case_df = pd.concat(data, sort=False)
     df= pd.DataFrame(data)
     return df
         
 def stringify_json_values(data):
     for dict in data:
+        subject_list = dict['subject']
         for key in dict:
             if type(dict[key]) == list:
                 tmp_list = []
@@ -277,6 +377,7 @@ def stringify_json_values(data):
                 dict[key] = tmp_list
 
                 dict[key] = ",".join(dict[key])
+        dict['subject_list'] = subject_list
                 
     return data
                 
@@ -301,6 +402,7 @@ def clean_json_data(filtered_data):
         hassegments = data.pop('hassegments', None)
         extract_timestamp = data.pop('extract_timestamp', None)
         timestampe = data.pop('timestamp', None)
+        mimetype=data.pop('mime_type', None)
         pdf = resources[0]['pdf']
         data["pdf"] = pdf
         data['search_index'] = index
@@ -335,14 +437,19 @@ def filter_json_data(json_data, filter):
     res = dict((k, json_data[k]) for k in filter if k in json_data)
     return res
 
-
+def create_master_subject_table():
+    table = pd.DataFrame()
+    table['subject']= np.nan
+    table['transaction']= np.nan
+    return(table)
 
 if __name__ == "__main__":
-
+    #neo_app= instantiate_neo_model_api()
     cwd = get_cwd()
     file_list = get_files(cwd = cwd)
-    json_pipeline(file_list=file_list)
-    #neo_app= instantiate_neo_aura_app()
+    master_subject_table = create_master_subject_table()
+    json_pipeline(file_list=file_list, master_subject_table=master_subject_table)
+    
     #neo_sandbox_app = instantiate_neo_sandbox_app()
     #google_creds = load_google_creds()
     #sheets_app = instantiate_sheets_app(google_creds.credentials)

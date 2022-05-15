@@ -21,8 +21,9 @@ class neoAPI():
         results, meta = db.cypher_query(query, params)
         people = [Person.inflate(row[0]) for row in results]
 
-    def create_case_node(case_data):
-        return Case()
+    def create_case_node(date, dates, group,name, pdf, shelf_id, subject, primary_topic, title, url):
+        return Case(date=date, dates=dates, group=group,name=name, pdf=pdf, shelf_id=shelf_id, subject=subject, primary_topic=primary_topic, title=title, url=url)
+
 
     def create_city_node(name):
         return City(name = name)
@@ -57,28 +58,30 @@ class neoAPI():
 
         #print("{}"+".connect" + "{}".format(source,target))
         
-    
+    def create_subject_node(name = None, type = 'subject'):
+        return Subject(name = name, type = type)
 
     def update(obj):
         with db.transaction:
             return obj.save()
 
-
+class Subject(StructuredNode):
+    uuid = UniqueIdProperty()
+    name = StringProperty(unique_index=True, required=True)
+    type = StringProperty(unique_index=True, required=True)
 
 class Case(StructuredNode):
     uid = UniqueIdProperty()
     date = StringProperty(unique_index=True, required=True)
     dates = StringProperty(unique_index=True, required=True)
     group = StringProperty(unique_index=True, required=True)
-    id = StringProperty(unique_index=True, required=True)
+    name = StringProperty(unique_index=True, required=True)
     pdf = StringProperty(unique_index=True, required=True) 
     shelf_id = StringProperty(unique_index=True, required=True)
     subject = StringProperty(unique_index=True, required=True)
     primary_topic = StringProperty(unique_index=True, required=True)
     title = StringProperty(unique_index=True, required=True)
     url = StringProperty(unique_index=True, required=True)
-    description = StringProperty(unique_index=True, required=True)
-    source_collection = StringProperty(unique_index=True, required=True)
 
 class Processed(StructuredNode):
     uid = UniqueIdProperty()
