@@ -13,7 +13,8 @@ class neoAPI():
     
     def instantiate_neo_model_session(uri,user,psw):
         
-        config.DATABASE_URL = 'neo4j+s://{}:{}@{}'.format(user, psw, uri)
+        #config.DATABASE_URL = 'neo4j+s://{}:{}@{}'.format(user, psw, uri)
+        config.DATABASE_URL ='bolt://neo4j:test@localhost:7687'
         #config.DATABASE_URL = uri
         return True
 
