@@ -251,33 +251,35 @@ def load_json_data(file):
 
 
 def json_pipeline(file_list, master_subject_table):
-    test = file_list[0]
-    data = load_json_data(file=test)
-    #pprint(data[0])
-    
-    #filtered_data = filter_json_data(json_data = data, filter = filter)
+    for file in file_list:
+        pprint(file)
+        data = load_json_data(file=file)
+        pprint(data)
+        #pprint(data[0])
+        
+        #filtered_data = filter_json_data(json_data = data, filter = filter)
 
-    # Creating the case nodes transaction nodes and df
-    data = clean_json_data(data)
-    case_data = stringify_json_values(data)
-    case_data = pandify_case_data(case_data)
-    case_data = nodify_case_data(case_data = case_data)
-    
-    # Creating the subject nodes transaction nodes and df
-    subject_list = slice_subject_data(data)
-    subject_list = identify_unique_subjects(subject_list)
-    subject_lookup_table = create_subject_lookup_table(subject_list)
-    master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
-    master_subject_table = nodify_subjects(master_subject_table)
+        # Creating the case nodes transaction nodes and df
+        data = clean_json_data(data)
+        case_data = stringify_json_values(data)
+        case_data = pandify_case_data(case_data)
+        case_data = nodify_case_data(case_data = case_data)
+        
+        # Creating the subject nodes transaction nodes and df
+        subject_list = slice_subject_data(data)
+        subject_list = identify_unique_subjects(subject_list)
+        subject_lookup_table = create_subject_lookup_table(subject_list)
+        master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
+        master_subject_table = nodify_subjects(master_subject_table)
 
-    #lets save data to the database
+        #lets save data to the database
 
-    master_subject_table = submit_subjects_to_db(master_subject_table)
-    case_data = submit_cases_to_db(case_data = case_data)
+        master_subject_table = submit_subjects_to_db(master_subject_table)
+        case_data = submit_cases_to_db(case_data = case_data)
 
-    # Create Relationships
+        # Create Relationships
 
-    relationship_list= create_relationship_table(case_data=case_data, master_subject_table=master_subject_table)
+        relationship_list= create_relationship_table(case_data=case_data, master_subject_table=master_subject_table)
     
 
 
@@ -322,7 +324,7 @@ def create_relationship_table(case_data, master_subject_table):
             subject = unique_dataframe.iloc[subject_row]['submitted']
             #create relationship
             relationship = neo.neoAPI.create_relationship(case.subject_relationship,subject)
-            pprint(relationship)
+            #pprint(relationship)
             relationship_list.append(relationship)
 
     return relationship_list
@@ -351,7 +353,7 @@ def create_relationship_table(case_data, master_subject_table):
 def nodify_case_data(case_data):
     #non_submitted_nodes = case_data[case_data.notna()]
     non_submitted_nodes = case_data[case_data.notna().any(axis=1)]
-    pprint(non_submitted_nodes)
+    #pprint(non_submitted_nodes)
     case_nodes = non_submitted_nodes.apply(lambda x :neo.neoAPI.create_case_node(date = x['date'], dates= x['dates'],group = x['group'], name=x['id'], pdf= x['pdf'], shelf_id = x['shelf_id'], subject= x['subject'], primary_topic = x['subject_major_case_topic'], title = x['title'], url = x['url'], subject_relationship=True), axis=1)
 
     case_data['transaction'] = case_nodes
