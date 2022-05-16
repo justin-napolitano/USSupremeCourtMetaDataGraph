@@ -296,27 +296,31 @@ def json_pipeline(file_list, master_subject_table):
 
 def submit_cases_to_db(case_data):
         #unsubmitted = master_subject_table[master_subject_table.notna()]
-    non_submitted_nodes = case_data[case_data['submitted'].isna().any(axis=1)]
-    pprint(non_submitted_nodes)
+
+        ### in theory none of the cases wouldhave been submitted becasue i am pulling them from file.  There is no need to check.. Just submit
+    #non_submitted_nodes = case_data[case_data['submitted'].isna()].copy()
     #pprint(non_submitted_nodes)
-    if non_submitted_nodes.empty:
-        return case_data
-    else:
-        non_submitted_nodes['submitted'] = non_submitted_nodes['transaction'].apply(lambda x: neo.neoAPI.update(x))
-        #test = non_submitted_nodes.iloc[32]['transaction']
-        #return_obj = neo.neoAPI.update(test)
-        case_data.update(non_submitted_nodes)
-        return case_data
+    ##pprint(non_submitted_nodes)
+    #if non_submitted_nodes.empty:
+    #    return case_data
+    #else:
+    case_data['transaction'] = case_data['transaction'].apply(lambda x: neo.neoAPI.update(x))
+    #Assume all are submitted..
+    case_data['submitted'] = True
+    #test = non_submitted_nodes.iloc[32]['transaction']
+    #return_obj = neo.neoAPI.update(test)
+    #case_data.update(non_submitted_nodes)
+    return case_data
 
     #Relationships must need to be created following saving to the df
     #relationships = create_relationship_table(case_data, master_subject_table)
 
 def submit_subjects_to_db(master_subject_table):
     #unsubmitted = master_subject_table[master_subject_table.notna()]
-    pprint(master_subject_table)
+    #pprint(master_subject_table)
     #non_submitted_nodes=master_subject_table[[master_subject_table['submitted'] == np.nan]]
     non_submitted_nodes = master_subject_table[master_subject_table['submitted'].isna()].copy()
-    pprint(non_submitted_nodes)
+    #pprint(non_submitted_nodes)
     if non_submitted_nodes.empty:   
         return master_subject_table
     else:
@@ -327,7 +331,7 @@ def submit_subjects_to_db(master_subject_table):
     #test = non_submitted_nodes.iloc[32]['transaction']
     #return_obj = neo.neoAPI.update(test)
         master_subject_table.update(non_submitted_nodes)
-        pprint(master_subject_table)
+        #pprint(master_subject_table)
         return master_subject_table
 
 def tester():
@@ -340,10 +344,13 @@ def create_relationship_table(case_data, master_subject_table):
     relationship_list = []
     for row in range(len(case_data)):
         unique_dataframe = (master_subject_table[master_subject_table['subject'].isin(case_data['subject_list'][row])])
+        #pprint(unique_dataframe)
         for subject_row in range(len(unique_dataframe)):
-            case = case_data.iloc[row]['submitted']
-            subject = unique_dataframe.iloc[subject_row]['submitted']
+            case = case_data.iloc[row]['transaction']
+            subject = unique_dataframe.iloc[subject_row]['transaction']
             #create relationship
+            #pprint(case)
+            #pprint(subject)
             relationship = neo.neoAPI.create_relationship(case.subject_relationship,subject)
             #pprint(relationship)
             relationship_list.append(relationship)
