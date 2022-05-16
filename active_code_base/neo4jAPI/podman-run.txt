@@ -1,0 +1,1 @@
+podman run --name loc_neo -p7687:7687 -p7474:7474 -p7473:7473 --volume neo4jdata:/data --volume neo4jlogs:/logs -v neo4jplugins:/plugins -d --env NEO4J_AUTH=neo4j/test neo4j
