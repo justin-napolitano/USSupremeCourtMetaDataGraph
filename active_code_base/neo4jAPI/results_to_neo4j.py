@@ -492,7 +492,10 @@ def clean_json_data(filtered_data):
         extract_timestamp = data.pop('extract_timestamp', None)
         timestampe = data.pop('timestamp', None)
         mimetype=data.pop('mime_type', None)
-        pdf = resources[0]['pdf']
+        try:
+            pdf = resources[0]['pdf']
+        except: 
+            pdf = "noPdf"
         data["pdf"] = pdf
         data['search_index'] = index
     
