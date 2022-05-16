@@ -201,8 +201,10 @@ def get_files(cwd =os.getcwd(), input_directory = 'input'):
     return file_list
 
 def instantiate_neo_model_api():
-    uri = "neo4j+s://7a92f171.databases.neo4j.io"
-    return neo.neoAPI(uri)
+    uri = "7a92f171.databases.neo4j.io"
+    user = "neo4j"
+    psw = 'RF4Gr2IJTNhHlW6HOrLDqz_I2E2Upyh7o8paTwfnCxg'
+    return neo.neoAPI.instantiate_neo_model_session(uri=uri,user=user,psw=psw)
 
 def prepare_data_pipeline():
     pipeline_functions = DataPipelineFunctions()
@@ -268,14 +270,67 @@ def json_pipeline(file_list, master_subject_table):
     master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
     master_subject_table = nodify_subjects(master_subject_table)
 
-    relationships = create_relationship_table(case_data, master_subject_table)
+    #lets save data to the database
 
+    master_subject_table = submit_subjects_to_db(master_subject_table)
+    case_data = submit_cases_to_db(case_data = case_data)
+
+    # Create Relationships
+
+    relationship_list= create_relationship_table(case_data=case_data, master_subject_table=master_subject_table)
+    
+
+
+
+
+def submit_cases_to_db(case_data):
+        #unsubmitted = master_subject_table[master_subject_table.notna()]
+    non_submitted_nodes = case_data[case_data.isna().any(axis=1)]
+    #pprint(non_submitted_nodes)
+    non_submitted_nodes['submitted'] = non_submitted_nodes['transaction'].apply(lambda x: neo.neoAPI.update(x))
+    #test = non_submitted_nodes.iloc[32]['transaction']
+    #return_obj = neo.neoAPI.update(test)
+    case_data.update(non_submitted_nodes)
+    return case_data
+
+    #Relationships must need to be created following saving to the df
+    #relationships = create_relationship_table(case_data, master_subject_table)
+
+def submit_subjects_to_db(master_subject_table):
+    #unsubmitted = master_subject_table[master_subject_table.notna()]
+    non_submitted_nodes = master_subject_table[master_subject_table.isna().any(axis=1)]
+    #pprint(non_submitted_nodes)
+    non_submitted_nodes['submitted'] = non_submitted_nodes['transaction'].apply(lambda x: neo.neoAPI.update(x))
+    #test = non_submitted_nodes.iloc[32]['transaction']
+    #return_obj = neo.neoAPI.update(test)
+    master_subject_table.update(non_submitted_nodes)
+    return master_subject_table
+
+
+def tester():
+    return "Hello Dolly"
 
 def create_relationship_table(case_data, master_subject_table):
     #pprint(case_data[])
         #test = master_subject_table['subject']
+        # select 
+    relationship_list = []
     for row in range(len(case_data)):
         unique_dataframe = (master_subject_table[master_subject_table['subject'].isin(case_data['subject_list'][row])])
+        for subject_row in range(len(unique_dataframe)):
+            case = case_data.iloc[row]['submitted']
+            subject = unique_dataframe.iloc[subject_row]['submitted']
+            #create relationship
+            relationship = neo.neoAPI.create_relationship(case.subject_relationship,subject)
+            pprint(relationship)
+            relationship_list.append(relationship)
+
+    return relationship_list
+
+
+
+
+        
     #create relationship between the case and each uid in the unique_data_frame_transaction_list 
     pprint(unique_dataframe)
 
@@ -294,8 +349,10 @@ def create_relationship_table(case_data, master_subject_table):
 
     #case_data= filter_case_data(data)
 def nodify_case_data(case_data):
-    non_submitted_nodes = case_data.notna()
-    case_nodes = non_submitted_nodes.apply(lambda x :neo.neoAPI.create_case_node(date = x['date'], dates= x['dates'],group = x['group'], name=x['id'], pdf= x['pdf'], shelf_id = x['shelf_id'], subject= x['subject'], primary_topic = x['subject_major_case_topic'], title = x['title'], url = x['url'] ), axis=1)
+    #non_submitted_nodes = case_data[case_data.notna()]
+    non_submitted_nodes = case_data[case_data.notna().any(axis=1)]
+    pprint(non_submitted_nodes)
+    case_nodes = non_submitted_nodes.apply(lambda x :neo.neoAPI.create_case_node(date = x['date'], dates= x['dates'],group = x['group'], name=x['id'], pdf= x['pdf'], shelf_id = x['shelf_id'], subject= x['subject'], primary_topic = x['subject_major_case_topic'], title = x['title'], url = x['url'], subject_relationship=True), axis=1)
 
     case_data['transaction'] = case_nodes
     return case_data
@@ -309,9 +366,10 @@ def filter_case_data(data):
 
 
 def nodify_subjects(master_subject_table):
-    non_submitted_nodes = master_subject_table.notna()
+    non_submitted_nodes = master_subject_table[master_subject_table.isna().any(axis=1)]
+    #df[df.isna().any(axis=1)]
     #pprint(non_submitted_nodes)
-    subject_nodes = master_subject_table['subject'].apply(lambda x :neo.neoAPI.create_subject_node(name = x))
+    subject_nodes = non_submitted_nodes['subject'].apply(lambda x :neo.neoAPI.create_subject_node(name = x))
     master_subject_table['transaction'] = subject_nodes
     return master_subject_table
 
@@ -329,6 +387,7 @@ def integrate_to_master_table(subject_lookup_table, master_subject_table):
 def create_subject_lookup_table(subject_list):
     lookup_table = pd.DataFrame(subject_list, columns=['subject'])
     lookup_table['transaction'] = np.nan
+    lookup_table['submitted'] = np.nan
     return lookup_table
 
 def identify_unique_subjects(subject_list):
@@ -363,6 +422,7 @@ def slice_subject_data(data):
 def pandify_case_data(data):
     #case_df = pd.concat(data, sort=False)
     df= pd.DataFrame(data)
+    df['submitted'] = np.nan
     return df
         
 def stringify_json_values(data):
@@ -378,6 +438,7 @@ def stringify_json_values(data):
 
                 dict[key] = ",".join(dict[key])
         dict['subject_list'] = subject_list
+
                 
     return data
                 
@@ -441,10 +502,11 @@ def create_master_subject_table():
     table = pd.DataFrame()
     table['subject']= np.nan
     table['transaction']= np.nan
+    table['submitted'] = np.nan
     return(table)
 
 if __name__ == "__main__":
-    #neo_app= instantiate_neo_model_api()
+    neo_applified = instantiate_neo_model_api()
     cwd = get_cwd()
     file_list = get_files(cwd = cwd)
     master_subject_table = create_master_subject_table()

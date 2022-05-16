@@ -7,22 +7,23 @@ from pprint import pprint
 
 class neoAPI():
 
-    def __init__(self,uri):
-        self.instantiate_neo_model_session(uri)    
+    def __init__(self,uri,user,psw):
+        self.db_init = self.instantiate_neo_model_session(uri,user,psw)    
         
     
-    def instantiate_neo_model_session(self,uri):
+    def instantiate_neo_model_session(uri,user,psw):
         
-        local = "bolt://neo4j:5995Oscar@10.0.0.37:7687"
-        remote = "neo4j+s://7a92f171.databases.neo4j.io"
-        config.DATABASE_URL = uri
+        config.DATABASE_URL = 'neo4j+s://{}:{}@{}'.format(user, psw, uri)
+        #config.DATABASE_URL = uri
+        return True
+
 
     def standard_query():
         results, meta = db.cypher_query(query, params)
         people = [Person.inflate(row[0]) for row in results]
 
-    def create_case_node(date, dates, group,name, pdf, shelf_id, subject, primary_topic, title, url):
-        return Case(date=date, dates=dates, group=group,name=name, pdf=pdf, shelf_id=shelf_id, subject=subject, primary_topic=primary_topic, title=title, url=url)
+    def create_case_node(date, dates, group,name, pdf, shelf_id, subject, primary_topic, title, url, subject_relationship = True):
+        return Case(date=date, dates=dates, group=group,name=name, pdf=pdf, shelf_id=shelf_id, subject=subject, primary_topic=primary_topic, title=title, url=url, type = "case")
 
 
     def create_city_node(name):
@@ -82,6 +83,8 @@ class Case(StructuredNode):
     primary_topic = StringProperty(unique_index=True, required=True)
     title = StringProperty(unique_index=True, required=True)
     url = StringProperty(unique_index=True, required=True)
+    subject_relationship = Relationship("Subject", "IS_SUBJECT")
+    type = StringProperty(unique_index=True, required=True)
 
 class Processed(StructuredNode):
     uid = UniqueIdProperty()
