@@ -253,6 +253,7 @@ def load_json_data(file):
 
 
 def json_pipeline(file_list, master_subject_table):
+    case_counter = 0
     for file in file_list:
         
         data = load_json_data(file=file)
@@ -273,7 +274,9 @@ def json_pipeline(file_list, master_subject_table):
         subject_list = identify_unique_subjects(subject_list)
         subject_lookup_table = create_subject_lookup_table(subject_list)
         master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
-        pprint(master_subject_table.duplicated())
+        #pprint(master_subject_table.duplicated())
+        case_couter = case_counter + len(case_data)
+        pprint(case_counter)
 
         #master_subject_table = nodify_subjects(master_subject_table)
 
@@ -406,7 +409,7 @@ def integrate_to_master_table(subject_lookup_table, master_subject_table):
     master_subject_table = pd.concat([master_subject_table,unique_dataframe])
     #master_subject_table.update(unique_dataframe)
     master_subject_table.reset_index(inplace=True, drop=True)
-    pprint(master_subject_table)
+    #pprint(master_subject_table)
     #pprint(master_subject_table.duplicated())
     return master_subject_table
 
