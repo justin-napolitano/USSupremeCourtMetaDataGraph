@@ -276,20 +276,19 @@ def json_pipeline(file_list, master_subject_table):
         master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
         #pprint(master_subject_table.duplicated())
         case_counter = case_counter + len(case_data)
-        pprint(case_counter)
 
-        #master_subject_table = nodify_subjects(master_subject_table)
+        master_subject_table = nodify_subjects(master_subject_table)
 
         #pprint(case_data)
         #pprint(master_subject_table['transaction'])
         #lets save data to the database
 
-        #master_subject_table = submit_subjects_to_db(master_subject_table)
-        #case_data = submit_cases_to_db(case_data = case_data)
+        master_subject_table = submit_subjects_to_db(master_subject_table)
+        case_data = submit_cases_to_db(case_data = case_data)
 
         # Create Relationships
 
-        #relationship_list= create_relationship_table(case_data=case_data, master_subject_table=master_subject_table)
+        relationship_list= create_relationship_table(case_data=case_data, master_subject_table=master_subject_table)
     
 
 
