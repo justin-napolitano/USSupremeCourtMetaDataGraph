@@ -275,7 +275,7 @@ def json_pipeline(file_list, master_subject_table):
         subject_lookup_table = create_subject_lookup_table(subject_list)
         master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
         #pprint(master_subject_table.duplicated())
-        case_couter = case_counter + len(case_data)
+        case_counter = case_counter + len(case_data)
         pprint(case_counter)
 
         #master_subject_table = nodify_subjects(master_subject_table)
