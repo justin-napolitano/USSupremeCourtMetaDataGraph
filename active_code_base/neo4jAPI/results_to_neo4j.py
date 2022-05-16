@@ -10,9 +10,11 @@ from cgitb import lookup
 import code
 from dbm import dumb
 from doctest import master
+from hmac import trans_36
 import mimetypes
 from platform import node
 from pprint import pprint
+from pty import master_open
 from re import sub
 from unittest.util import unorderable_list_difference
 from urllib.parse import non_hierarchical
@@ -252,9 +254,10 @@ def load_json_data(file):
 
 def json_pipeline(file_list, master_subject_table):
     for file in file_list:
-        pprint(file)
+        
         data = load_json_data(file=file)
-        pprint(data)
+        data = data['results']
+        #pprint(data)
         #pprint(data[0])
         
         #filtered_data = filter_json_data(json_data = data, filter = filter)
@@ -270,16 +273,19 @@ def json_pipeline(file_list, master_subject_table):
         subject_list = identify_unique_subjects(subject_list)
         subject_lookup_table = create_subject_lookup_table(subject_list)
         master_subject_table = integrate_to_master_table(subject_lookup_table,master_subject_table)
-        master_subject_table = nodify_subjects(master_subject_table)
 
+        #master_subject_table = nodify_subjects(master_subject_table)
+
+        #pprint(case_data)
+        #pprint(master_subject_table['transaction'])
         #lets save data to the database
 
-        master_subject_table = submit_subjects_to_db(master_subject_table)
-        case_data = submit_cases_to_db(case_data = case_data)
+        #master_subject_table = submit_subjects_to_db(master_subject_table)
+        #case_data = submit_cases_to_db(case_data = case_data)
 
         # Create Relationships
 
-        relationship_list= create_relationship_table(case_data=case_data, master_subject_table=master_subject_table)
+        #relationship_list= create_relationship_table(case_data=case_data, master_subject_table=master_subject_table)
     
 
 
@@ -287,27 +293,39 @@ def json_pipeline(file_list, master_subject_table):
 
 def submit_cases_to_db(case_data):
         #unsubmitted = master_subject_table[master_subject_table.notna()]
-    non_submitted_nodes = case_data[case_data.isna().any(axis=1)]
+    non_submitted_nodes = case_data[case_data['submitted'].isna().any(axis=1)]
+    pprint(non_submitted_nodes)
     #pprint(non_submitted_nodes)
-    non_submitted_nodes['submitted'] = non_submitted_nodes['transaction'].apply(lambda x: neo.neoAPI.update(x))
-    #test = non_submitted_nodes.iloc[32]['transaction']
-    #return_obj = neo.neoAPI.update(test)
-    case_data.update(non_submitted_nodes)
-    return case_data
+    if non_submitted_nodes.empty:
+        return case_data
+    else:
+        non_submitted_nodes['submitted'] = non_submitted_nodes['transaction'].apply(lambda x: neo.neoAPI.update(x))
+        #test = non_submitted_nodes.iloc[32]['transaction']
+        #return_obj = neo.neoAPI.update(test)
+        case_data.update(non_submitted_nodes)
+        return case_data
 
     #Relationships must need to be created following saving to the df
     #relationships = create_relationship_table(case_data, master_subject_table)
 
 def submit_subjects_to_db(master_subject_table):
     #unsubmitted = master_subject_table[master_subject_table.notna()]
-    non_submitted_nodes = master_subject_table[master_subject_table.isna().any(axis=1)]
-    #pprint(non_submitted_nodes)
-    non_submitted_nodes['submitted'] = non_submitted_nodes['transaction'].apply(lambda x: neo.neoAPI.update(x))
+    pprint(master_subject_table)
+    #non_submitted_nodes=master_subject_table[[master_subject_table['submitted'] == np.nan]]
+    non_submitted_nodes = master_subject_table[master_subject_table['submitted'].isna()].copy()
+    pprint(non_submitted_nodes)
+    if non_submitted_nodes.empty:   
+        return master_subject_table
+    else:
+         #pprint(non_submitted_nodes)
+        non_submitted_nodes['transaction'] = non_submitted_nodes['transaction'].apply(lambda x: neo.neoAPI.update(x))
+        non_submitted_nodes['submitted'] = True
+    
     #test = non_submitted_nodes.iloc[32]['transaction']
     #return_obj = neo.neoAPI.update(test)
-    master_subject_table.update(non_submitted_nodes)
-    return master_subject_table
-
+        master_subject_table.update(non_submitted_nodes)
+        pprint(master_subject_table)
+        return master_subject_table
 
 def tester():
     return "Hello Dolly"
@@ -354,7 +372,7 @@ def nodify_case_data(case_data):
     #non_submitted_nodes = case_data[case_data.notna()]
     non_submitted_nodes = case_data[case_data.notna().any(axis=1)]
     #pprint(non_submitted_nodes)
-    case_nodes = non_submitted_nodes.apply(lambda x :neo.neoAPI.create_case_node(date = x['date'], dates= x['dates'],group = x['group'], name=x['id'], pdf= x['pdf'], shelf_id = x['shelf_id'], subject= x['subject'], primary_topic = x['subject_major_case_topic'], title = x['title'], url = x['url'], subject_relationship=True), axis=1)
+    case_nodes = non_submitted_nodes.apply(lambda x :neo.neoAPI.create_case_node(date = x['date'], dates= x['dates'],group = x['group'], name=x['id'], pdf= x['pdf'], shelf_id = x['shelf_id'], subject= x['subject'], title = x['title'], url = x['url'], subject_relationship=True), axis=1)
 
     case_data['transaction'] = case_nodes
     return case_data
@@ -368,11 +386,11 @@ def filter_case_data(data):
 
 
 def nodify_subjects(master_subject_table):
-    non_submitted_nodes = master_subject_table[master_subject_table.isna().any(axis=1)]
+    non_submitted_nodes = master_subject_table[master_subject_table.isna().any(axis=1)].copy()
     #df[df.isna().any(axis=1)]
     #pprint(non_submitted_nodes)
-    subject_nodes = non_submitted_nodes['subject'].apply(lambda x :neo.neoAPI.create_subject_node(name = x))
-    master_subject_table['transaction'] = subject_nodes
+    non_submitted_nodes['transaction'] = non_submitted_nodes['subject'].apply(lambda x :neo.neoAPI.create_subject_node(name = x))
+    master_subject_table.update(non_submitted_nodes)
     return master_subject_table
 
 def integrate_to_master_table(subject_lookup_table, master_subject_table):
@@ -382,8 +400,13 @@ def integrate_to_master_table(subject_lookup_table, master_subject_table):
     #pprint(subject_lookup_table)
     test = master_subject_table['subject']
     unique_dataframe = (subject_lookup_table[~subject_lookup_table['subject'].isin(test)])
+    #pprint(unique_dataframe)
     #duplicate_list = (master_subject_table[~master_subject_table['subject'].isin(subject_lookup_table['subject'])])
     master_subject_table = pd.concat([master_subject_table,unique_dataframe])
+    #master_subject_table.update(unique_dataframe)
+    master_subject_table.reset_index(inplace=True, drop=True)
+    pprint(master_subject_table)
+    #pprint(master_subject_table.duplicated())
     return master_subject_table
 
 def create_subject_lookup_table(subject_list):
@@ -451,7 +474,10 @@ def clean_json_data(filtered_data):
     # Select the keys that I want from the dictionary
     # filter appropriatly into a df 
     # write df to file
+    #print(type(filtered_data))
+    #pprint(filtered_data)
     for data in filtered_data:
+        #pprint(data)
         #creat a dictionary of columns and values for each row.  Combine them all into a df when we are done
         # each dictionary must be a row.... which makes perfect sense, but they can not be nested... 
         item = data.pop('item', None)
@@ -460,7 +486,7 @@ def clean_json_data(filtered_data):
         language = data.pop('language', None)
         online_format= data.pop('online_format', None)
         original_format = data.pop('original_format', None)
-        type = data.pop('type', None)
+        kind = data.pop('type', None)
         image_url = data.pop('image_url', None)
         hassegments = data.pop('hassegments', None)
         extract_timestamp = data.pop('extract_timestamp', None)
