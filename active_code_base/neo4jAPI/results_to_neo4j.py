@@ -195,7 +195,7 @@ def get_cwd():
     cwd = os.getcwd()
     return cwd
 
-def get_files(cwd =os.getcwd(), input_directory = 'input'):
+def get_files(cwd =os.getcwd(), input_directory = 'extras'):
     
     path = os.sep.join([cwd,input_directory])
     file_list= [f for f in glob.glob(path + "**/*.json", recursive=True)]
@@ -432,21 +432,7 @@ def identify_unique_subjects(subject_list):
     # convert the set to the list
     unique_list = (list(list_set))
     return unique_list
-#def combine_subjects(subject_lists):
 
-
-
-
-
-    #for each result in the list
-        #nodify it 
-        # how
-            # idk what is necessary for a node
-            #Create a node with the properties.  So what is the code
-            # i might just have to code hte variables  Otherwise i could unwind it, but then... what 
-            #yeah there is a query function
-            #nah do it the right way.  
-            #FOr each result create a node typed correctly
 def slice_subject_data(data):
     subject_list = []
     for case in data:
