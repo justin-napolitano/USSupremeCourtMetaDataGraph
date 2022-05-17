@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import date
 from shelve import Shelf
 from neomodel import (config, StructuredNode, StringProperty, IntegerProperty,
-    UniqueIdProperty, RelationshipTo, BooleanProperty, EmailProperty, Relationship, db)
+    UniqueIdProperty, RelationshipTo, BooleanProperty, EmailProperty, Relationship, DateProperty, db)
 from pprint import pprint
 
 class neoAPI():
@@ -66,6 +66,13 @@ class neoAPI():
     def update(obj):
         with db.transaction:
             return obj.save()
+
+class Justice(StructuredNode):
+    uuid = UniqueIdProperty()
+    justice = StringProperty(unique_index=True, required=True)
+    term_start = DateProperty(unique_index=True, required=True)
+    term_end = DateProperty(unique_index=True, required=True)
+    appointee = StringProperty(unique_index=True, required=True)
 
 class Subject(StructuredNode):
     uuid = UniqueIdProperty()
