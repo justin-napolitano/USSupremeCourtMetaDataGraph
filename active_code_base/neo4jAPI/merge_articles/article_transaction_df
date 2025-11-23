@@ -1,8 +1,0 @@
-,article,topic,citation,transaction
-0,Article 1,The Legislative Branch,ArtI,"{'uuid': '06508d07925246918524003532d8d36d', 'name': 'Article 1', 'topic': 'The Legislative Branch', 'citation': 'ArtI'}"
-1,Article 2,The Presidency,ArtII,"{'uuid': '629939cc93264321a5f7a3e3cabe4f15', 'name': 'Article 2', 'topic': 'The Presidency', 'citation': 'ArtII'}"
-2,Article 3,The Judiciary,ArtIII,"{'uuid': '60f2a448f54f41e09386bcfe2e5fc6e4', 'name': 'Article 3', 'topic': 'The Judiciary', 'citation': 'ArtIII'}"
-3,Article 4,The States,ArtIV,"{'uuid': '14fbceec5b0f4e219f89c0aeab0b065b', 'name': 'Article 4', 'topic': 'The States', 'citation': 'ArtIV'}"
-4,Article 5,The Amendment Process,ArtV,"{'uuid': 'e64a128e1ff64840b93e0cff869a4dba', 'name': 'Article 5', 'topic': 'The Amendment Process', 'citation': 'ArtV'}"
-5,Article 6,Legal Status of the Constitution,ArtVI,"{'uuid': '123f0b25fbe04421bee6087e30ad622e', 'name': 'Article 6', 'topic': 'Legal Status of the Constitution', 'citation': 'ArtVI'}"
-6,Article 7,Ratification,ArtVII,"{'uuid': 'be1352be47d04656aae8a96c50de7f77', 'name': 'Article 7', 'topic': 'Ratification', 'citation': 'ArtVII'}"
