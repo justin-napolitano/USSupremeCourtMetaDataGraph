@@ -1,12 +1,28 @@
 ---
-slug: "github-ussupremecourtmetadatagraph"
-title: "USSupremeCourtMetaDataGraph"
-repo: "justin-napolitano/USSupremeCourtMetaDataGraph"
-githubUrl: "https://github.com/justin-napolitano/USSupremeCourtMetaDataGraph"
-generatedAt: "2025-11-23T09:49:16.743831Z"
-source: "github-auto"
+slug: github-ussupremecourtmetadatagraph
+title: 'US Supreme Court Metadata Graph: Scraping and Graph Modeling'
+repo: justin-napolitano/USSupremeCourtMetaDataGraph
+githubUrl: https://github.com/justin-napolitano/USSupremeCourtMetaDataGraph
+generatedAt: '2025-11-23T09:49:16.743831Z'
+source: github-auto
+summary: >-
+  Technical overview of extracting, cleaning, and structuring US Supreme Court case metadata into
+  graph formats using Python and NetworkX.
+tags:
+  - python
+  - web-scraping
+  - networkx
+  - legal-data
+  - metadata
+  - graph-modeling
+seoPrimaryKeyword: US Supreme Court metadata graph
+seoSecondaryKeywords:
+  - web scraping
+  - networkx
+  - legal metadata
+  - graph data modeling
+seoOptimized: true
 ---
-
 
 # USSupremeCourtMetaDataGraph: Technical Overview and Implementation Notes
 
