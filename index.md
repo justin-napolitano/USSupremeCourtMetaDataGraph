@@ -22,6 +22,13 @@ seoSecondaryKeywords:
   - legal metadata
   - graph data modeling
 seoOptimized: true
+topicFamily: datascience
+topicFamilyConfidence: 0.95
+topicFamilyNotes: >-
+  The post focuses on a data-centric project involving data extraction via API scraping, JSON
+  processing, data cleaning, and modeling metadata into graphs using Python and NetworkX. This
+  aligns well with datascience family which covers data analysis projects, ETL pipelines, and
+  scientific data workflows.
 ---
 
 # USSupremeCourtMetaDataGraph: Technical Overview and Implementation Notes
@@ -70,3 +77,4 @@ Testing is implemented using pytest, with tests validating credential creation, 
 ## Summary
 
 This project is a technical foundation for mining and analyzing US Supreme Court case metadata from the Library of Congress. It combines web scraping, JSON processing, and graph data modeling to facilitate political and legal research. While incomplete, it provides a structured approach and codebase for further development and integration with graph databases and visualization tools.
+
