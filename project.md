@@ -7,8 +7,8 @@ githubUrl: https://github.com/justin-napolitano/USSupremeCourtMetaDataGraph
 generatedAt: '2025-11-24T21:36:44.681Z'
 source: github-auto
 summary: >-
-  This project extracts US Supreme Court case metadata from the Library of
-  Congress and organizes it into a graph structure for analysis.
+  This project extracts US Supreme Court case metadata from the Library of Congress and organizes it
+  into a graph structure for analysis.
 tags:
   - python
   - web scraping
@@ -26,8 +26,8 @@ seoSecondaryKeywords:
   - python web scraping
   - metadata analysis
 seoOptimized: true
-topicFamily: null
-topicFamilyConfidence: null
+topicFamily: datascience
+topicFamilyConfidence: 0.9
 kind: project
 entryLayout: project
 showInProjects: true
@@ -121,3 +121,4 @@ USSupremeCourtMetaDataGraph/
 ---
 
 *This project is a work in progress and serves as a proof of concept for mining US Supreme Court metadata for political science research.*
+
