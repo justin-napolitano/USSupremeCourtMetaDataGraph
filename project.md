@@ -1,18 +1,31 @@
 ---
 slug: github-ussupremecourtmetadatagraph
 id: github-ussupremecourtmetadatagraph
-title: USSupremeCourtMetaDataGraph
+title: 'US Supreme Court Metadata Graph: Data Extraction and Analysis'
 repo: justin-napolitano/USSupremeCourtMetaDataGraph
 githubUrl: https://github.com/justin-napolitano/USSupremeCourtMetaDataGraph
 generatedAt: '2025-11-24T21:36:44.681Z'
 source: github-auto
 summary: >-
-  Code that extracts metadata for every US Supreme Court case from the Library
-  of Congress database and organizes it into a graph structure for analysis.
-tags: []
-seoPrimaryKeyword: ''
-seoSecondaryKeywords: []
-seoOptimized: false
+  This project extracts US Supreme Court case metadata from the Library of
+  Congress and organizes it into a graph structure for analysis.
+tags:
+  - python
+  - web scraping
+  - networkx
+  - api
+  - data visualization
+  - json
+  - yaml
+  - pytest
+seoPrimaryKeyword: us supreme court metadata extraction
+seoSecondaryKeywords:
+  - graph data structures
+  - library of congress api
+  - data processing utilities
+  - python web scraping
+  - metadata analysis
+seoOptimized: true
 topicFamily: null
 topicFamilyConfidence: null
 kind: project
