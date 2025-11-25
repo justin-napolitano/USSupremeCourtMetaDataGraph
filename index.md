@@ -1,13 +1,13 @@
 ---
 slug: github-ussupremecourtmetadatagraph
-title: 'US Supreme Court Metadata Graph: Scraping and Graph Modeling'
+title: Technical Overview of US Supreme Court Metadata Graph
 repo: justin-napolitano/USSupremeCourtMetaDataGraph
 githubUrl: https://github.com/justin-napolitano/USSupremeCourtMetaDataGraph
 generatedAt: '2025-11-23T09:49:16.743831Z'
 source: github-auto
 summary: >-
-  Technical overview of extracting, cleaning, and structuring US Supreme Court case metadata into
-  graph formats using Python and NetworkX.
+  Explore the implementation of a graph-based approach to analyze US Supreme
+  Court case metadata from the Library of Congress.
 tags:
   - python
   - web-scraping
@@ -15,20 +15,28 @@ tags:
   - legal-data
   - metadata
   - graph-modeling
+  - web scraping
+  - json processing
+  - graph databases
+  - API integration
+  - data cleaning
 seoPrimaryKeyword: US Supreme Court metadata graph
 seoSecondaryKeywords:
-  - web scraping
-  - networkx
-  - legal metadata
+  - Library of Congress API
+  - data extraction
   - graph data modeling
+  - political science research
+  - metadata analysis
 seoOptimized: true
 topicFamily: datascience
 topicFamilyConfidence: 0.95
 topicFamilyNotes: >-
-  The post focuses on a data-centric project involving data extraction via API scraping, JSON
-  processing, data cleaning, and modeling metadata into graphs using Python and NetworkX. This
-  aligns well with datascience family which covers data analysis projects, ETL pipelines, and
-  scientific data workflows.
+  The post focuses on a data-centric project involving data extraction via API
+  scraping, JSON processing, data cleaning, and modeling metadata into graphs
+  using Python and NetworkX. This aligns well with datascience family which
+  covers data analysis projects, ETL pipelines, and scientific data workflows.
+kind: project
+id: github-ussupremecourtmetadatagraph
 ---
 
 # USSupremeCourtMetaDataGraph: Technical Overview and Implementation Notes
